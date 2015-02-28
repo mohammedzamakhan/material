@@ -287,6 +287,10 @@ function(COMPONENTS, DEMOS, PAGES, $location, $rootScope) {
       $scope.isSelected = function() {
         return controller.isSelected($scope.section);
       };
+
+      $scope.itemClicked = function() {
+        controller.navItemClicked = true;
+      };
     }
   };
 })
@@ -328,6 +332,8 @@ function(COMPONENTS, DEMOS, PAGES, $location, $rootScope) {
   '$rootScope',
   '$log',
 function($scope, COMPONENTS, BUILDCONFIG, $mdSidenav, $timeout, $mdDialog, menu, $location, $rootScope, $log) {
+  var self = this;
+
   $scope.COMPONENTS = COMPONENTS;
   $scope.BUILDCONFIG = BUILDCONFIG;
   $scope.menu = menu;
@@ -339,11 +345,14 @@ function($scope, COMPONENTS, BUILDCONFIG, $mdSidenav, $timeout, $mdDialog, menu,
   $scope.isSectionSelected = isSectionSelected;
 
   $rootScope.$on('$locationChangeSuccess', openPage);
+  $scope.focusMainContent = focusMainContent;
 
   // Methods used by menuLink and menuToggle directives
   this.isOpen = isOpen;
   this.isSelected = isSelected;
   this.toggleOpen = toggleOpen;
+  this.navItemClicked = false;
+
 
   var mainContentArea = document.querySelector("[role='main']");
 
@@ -370,6 +379,17 @@ function($scope, COMPONENTS, BUILDCONFIG, $mdSidenav, $timeout, $mdDialog, menu,
 
   function openPage() {
     $scope.closeMenu();
+
+    if (self.navItemClicked) {
+      focusMainContent();
+      self.navItemClicked = false;
+    }
+  }
+
+  function focusMainContent($event) {
+    // prevent skip link from redirecting
+    if ($event) { $event.preventDefault(); }
+
     mainContentArea.focus();
   }
 
